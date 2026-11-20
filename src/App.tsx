@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { MovieDashboardContainer } from './components/MovieDashboardContainer';
-import { MovieStepper } from './components/MovieStepper';
-import { ViewToggle } from './components/ViewToggle';
-import { FilteredMovieList } from './components/FilteredMovieList';
+import React from 'react';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { FilterProvider } from './context/FilterContext';
+import { DashboardPage } from './pages/DashboardPage';
+import { MovieDetailsPage } from './pages/MovieDetailsPage';
 
-export const App: React.FC = () => {
-    const [isLightTheme, setIsLightTheme] = useState<boolean>(false);
+const AppShell: React.FC = () => {
+    const { isLightTheme, toggleTheme } = useTheme();
 
     return (
         <div
@@ -13,9 +14,9 @@ export const App: React.FC = () => {
                 minHeight: '100vh',
                 padding: '36px 20px',
                 background: isLightTheme
-                    ? 'linear-gradient(135deg, #f8f5ff 0%, #fce7f3 100%)'
+                    ? 'linear-gradient(135deg, #fce7f3 0%, #f3e8ff 55%, #ede9fe 100%)'
                     : '#0f0a1a',
-                color: isLightTheme ? '#1e1b4b' : '#e2d9f3',
+                color: isLightTheme ? '#3b0764' : '#e2d9f3',
                 transition: 'background 0.25s ease, color 0.25s ease',
             }}
         >
@@ -24,49 +25,77 @@ export const App: React.FC = () => {
                     style={{
                         marginBottom: '28px',
                         borderBottom: isLightTheme
-                            ? '1px solid rgba(147, 51, 234, 0.2)'
+                            ? '1px solid rgba(192, 132, 252, 0.45)'
                             : '1px solid rgba(168, 85, 247, 0.25)',
                         paddingBottom: '16px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '12px',
                     }}
                 >
-                    <h1
+                    <div>
+                        <h1
+                            style={{
+                                margin: '0 0 6px 0',
+                                color: isLightTheme ? '#4c1d95' : '#f3e8ff',
+                                fontSize: '26px',
+                                fontWeight: 700,
+                            }}
+                        >
+                            <Link
+                                to="/"
+                                style={{ color: 'inherit', textDecoration: 'none' }}
+                            >
+                                Кіно-Аналітика{' '}
+                                <span style={{ color: isLightTheme ? '#be185d' : '#f472b6' }}>
+                  Dashboard
+                </span>
+                            </Link>
+                        </h1>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={toggleTheme}
                         style={{
-                            margin: '0 0 6px 0',
-                            color: isLightTheme ? '#2e1065' : '#f3e8ff',
-                            fontSize: '26px',
-                            fontWeight: 700,
+                            padding: '8px 14px',
+                            borderRadius: '10px',
+                            border: isLightTheme
+                                ? '1px solid rgba(219, 39, 119, 0.45)'
+                                : '1px solid rgba(219, 39, 119, 0.6)',
+                            background: isLightTheme ? '#fbcfe8' : 'rgba(147, 51, 234, 0.25)',
+                            color: isLightTheme ? '#831843' : '#f5d0fe',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
                         }}
                     >
-                        Кіно-Аналітика{' '}
-                        <span style={{ color: isLightTheme ? '#be185d' : '#f472b6' }}>
-              Dashboard
-            </span>
-                    </h1>
-
+                        {isLightTheme ? 'Темна тема' : 'Світла тема'}
+                    </button>
                 </header>
 
-                <MovieDashboardContainer />
-
-                <section
-                    style={{
-                        display: 'flex',
-                        gap: '16px',
-                        flexWrap: 'wrap',
-                        marginTop: '24px',
-                    }}
-                >
-                    <MovieStepper />
-                    <ViewToggle
-                        isLightTheme={isLightTheme}
-                        onToggleTheme={() => setIsLightTheme((prev) => !prev)}
-                    />
-                </section>
-
-                <section style={{ marginTop: '24px' }}>
-                    <FilteredMovieList />
-                </section>
+                <Routes>
+                    <Route path="/" element={<DashboardPage />} />
+                    <Route path="/movie/:id" element={<MovieDetailsPage />} />
+                    <Route path="*" element={<MovieDetailsPage />} />
+                </Routes>
             </div>
         </div>
+    );
+};
+
+export const App: React.FC = () => {
+    return (
+        <BrowserRouter>
+            <ThemeProvider>
+                <FilterProvider>
+                    <AppShell />
+                </FilterProvider>
+            </ThemeProvider>
+        </BrowserRouter>
     );
 };
 

@@ -1,12 +1,9 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
+import { useFilters } from '../context/FilterContext';
 import { useDebounce } from '../hooks/useDebounce';
 import { useFetch } from '../hooks/useFetch';
 import { fetchMoviesByQuery, type ApiMovie } from '../services/movieService';
-import {
-    INITIAL_FILTERS,
-    MovieFilterPanel,
-    type MovieFiltersState,
-} from './MovieFilterPanel';
+import { MovieFilterPanel } from './MovieFilterPanel';
 import { MovieDashboardView } from './MovieDashboardView';
 
 export interface DashboardKpis {
@@ -19,7 +16,7 @@ export interface DashboardKpis {
 }
 
 export const MovieDashboardContainer: React.FC = () => {
-    const [filters, setFilters] = useState<MovieFiltersState>(INITIAL_FILTERS);
+    const { filters, resetFilters } = useFilters();
     const debouncedQuery = useDebounce(filters.query, 400);
 
     const fetcher = useCallback(
@@ -32,10 +29,6 @@ export const MovieDashboardContainer: React.FC = () => {
         [],
         [fetcher]
     );
-
-    const handleResetFilters = () => {
-        setFilters(INITIAL_FILTERS);
-    };
 
     const minRatingNum = Number(filters.minRating) || 0;
 
@@ -92,18 +85,14 @@ export const MovieDashboardContainer: React.FC = () => {
 
     return (
         <div>
-            <MovieFilterPanel
-                filters={filters}
-                onChange={setFilters}
-                onReset={handleResetFilters}
-            />
+            <MovieFilterPanel />
 
             <MovieDashboardView
                 movies={sortedMovies}
                 loading={loading}
                 error={error}
                 kpis={kpis}
-                onResetFilters={handleResetFilters}
+                onResetFilters={resetFilters}
             />
         </div>
     );

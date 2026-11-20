@@ -1,14 +1,9 @@
 import React from 'react';
+import { useTheme } from '../context/ThemeContext';
 
-interface ViewToggleProps {
-    isLightTheme?: boolean;
-    onToggleTheme?: () => void;
-}
+export const ViewToggle: React.FC = () => {
+    const { isLightTheme, toggleTheme } = useTheme();
 
-export const ViewToggle: React.FC<ViewToggleProps> = ({
-                                                          isLightTheme = false,
-                                                          onToggleTheme,
-                                                      }) => {
     return (
         <div
             style={{
@@ -49,7 +44,7 @@ export const ViewToggle: React.FC<ViewToggleProps> = ({
             </p>
             <button
                 type="button"
-                onClick={onToggleTheme}
+                onClick={toggleTheme}
                 style={{
                     padding: '8px 16px',
                     borderRadius: '10px',

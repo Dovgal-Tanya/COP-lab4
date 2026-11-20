@@ -11,6 +11,18 @@ export interface ApiMovie {
     original_language: string;
 }
 
+export interface ApiMovieDetails extends ApiMovie {
+    overview: string;
+    tagline: string;
+    runtime: number | null;
+    budget: number;
+    revenue: number;
+    status: string;
+    genres: { id: number; name: string }[];
+    backdrop_path: string | null;
+    poster_path: string | null;
+}
+
 export const fetchMoviesByQuery = async (
     searchQuery: string,
     page = 1,
@@ -34,4 +46,32 @@ export const fetchMoviesByQuery = async (
 
     const payload = await response.json();
     return Array.isArray(payload.results) ? payload.results : [];
+};
+
+export const fetchMovieDetailsById = async (
+    id: string,
+    signal?: AbortSignal
+): Promise<ApiMovieDetails> => {
+    if (!API_KEY) {
+        throw new Error('Не вказано VITE_TMDB_API_KEY у файлі .env');
+    }
+
+    if (!/^\d+$/.test(id)) {
+        throw new Error('Фільм із таким ідентифікатором не знайдено');
+    }
+
+    const response = await fetch(
+        `${BASE_URL}/movie/${id}?api_key=${API_KEY}&language=uk-UA`,
+        { signal }
+    );
+
+    if (response.status === 404) {
+        throw new Error('Фільм із таким ID не знайдено в базі TMDB');
+    }
+
+    if (!response.ok) {
+        throw new Error(`Помилка завантаження деталей (${response.status})`);
+    }
+
+    return response.json();
 };
