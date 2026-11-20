@@ -1,4 +1,4 @@
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY || '15a3557b24c0816b81407a3323404423';
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY || '';
 const BASE_URL = 'https://api.themoviedb.org/3';
 
 export interface ApiMovie {
@@ -8,16 +8,30 @@ export interface ApiMovie {
     vote_average: number;
     vote_count: number;
     popularity: number;
+    original_language: string;
 }
 
-export const fetchNowPlayingMovies = async (): Promise<ApiMovie[]> => {
-    const url = `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=uk-UA&page=1`;
-    const response = await fetch(url);
-
-    if (!response.ok) {
-        throw new Error(`TMDB помилка (${response.status}). Перевір API-ключ.`);
+export const fetchMoviesByQuery = async (
+    searchQuery: string,
+    page = 1,
+    signal?: AbortSignal
+): Promise<ApiMovie[]> => {
+    if (!API_KEY) {
+        throw new Error('Не вказано VITE_TMDB_API_KEY у файлі .env');
     }
 
-    const data = await response.json();
-    return Array.isArray(data.results) ? data.results : [];
+    const safePage = Number.isFinite(page) && page >= 1 ? Math.floor(page) : 1;
+    const trimmed = searchQuery.trim();
+    const endpoint = trimmed
+        ? `${BASE_URL}/search/movie?api_key=${API_KEY}&language=uk-UA&query=${encodeURIComponent(trimmed)}&page=${safePage}`
+        : `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=uk-UA&page=${safePage}`;
+
+    const response = await fetch(endpoint, { signal });
+
+    if (!response.ok) {
+        throw new Error(`Помилка TMDB API (${response.status})`);
+    }
+
+    const payload = await response.json();
+    return Array.isArray(payload.results) ? payload.results : [];
 };

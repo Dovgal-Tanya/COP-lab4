@@ -1,36 +1,28 @@
 import React from 'react';
 import { type ApiMovie } from '../services/movieService';
-import { type DashboardKpis, type SortField, type SortOrder } from './MovieDashboardContainer';
+import { type DashboardKpis } from './MovieDashboardContainer';
 import { KpiCard } from './KpiCard';
 
 interface MovieDashboardViewProps {
     movies: ApiMovie[];
     loading: boolean;
     error: string | null;
-    sortField: SortField;
-    sortOrder: SortOrder;
-    onSort: (field: SortField) => void;
     kpis: DashboardKpis;
+    onResetFilters: () => void;
 }
 
 export const MovieDashboardView: React.FC<MovieDashboardViewProps> = ({
                                                                           movies,
                                                                           loading,
                                                                           error,
-                                                                          sortField,
-                                                                          sortOrder,
-                                                                          onSort,
                                                                           kpis,
+                                                                          onResetFilters,
                                                                       }) => {
-    const arrow = (field: SortField) =>
-        sortField === field ? (sortOrder === 'asc' ? ' ↑' : ' ↓') : '';
-
     return (
         <div>
-            {}
             <section style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '24px' }}>
                 <KpiCard
-                    title="Фільмів у прокаті (API)"
+                    title="Фільмів у вибірці"
                     value={loading ? '—' : kpis.totalCount}
                     trend={loading ? 'Завантаження...' : kpis.highRatedSharePct}
                     isPositive={true}
@@ -50,48 +42,29 @@ export const MovieDashboardView: React.FC<MovieDashboardViewProps> = ({
             </section>
 
             <div style={boxStyle}>
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: '16px',
-                        flexWrap: 'wrap',
-                        gap: '10px',
-                    }}
-                >
-                    <h2 style={{ margin: 0, color: '#f3e8ff', fontSize: '18px' }}>
-                        ЛР2: Фільми у прокаті (TMDB)
-                    </h2>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        <button type="button" onClick={() => onSort('title')} style={btnStyle}>
-                            Назва{arrow('title')}
-                        </button>
-                        <button type="button" onClick={() => onSort('vote_average')} style={btnStyle}>
-                            Рейтинг{arrow('vote_average')}
-                        </button>
-                        <button type="button" onClick={() => onSort('popularity')} style={btnStyle}>
-                            Популярність{arrow('popularity')}
-                        </button>
-                    </div>
-                </div>
+                <h2 style={{ margin: '0 0 16px 0', color: '#f3e8ff', fontSize: '18px' }}>
+                    Результати запиту та фільтрації
+                </h2>
 
-                {}
-                {loading && <div style={stateStyle}>Завантаження даних з TMDB API...</div>}
+                {loading && <div style={stateStyle}>Завантаження даних...</div>}
 
-                {}
                 {!loading && error && (
                     <div style={{ ...stateStyle, color: '#fda4af' }}>
-                        Помилка запиту: {error}
+                        Помилка: {error}
                     </div>
                 )}
 
-                {}
                 {!loading && !error && movies.length === 0 && (
-                    <div style={stateStyle}>Даних немає — список фільмів порожній.</div>
+                    <div style={stateStyle}>
+                        <p style={{ margin: '0 0 12px 0' }}>
+                            За заданими параметрами фільмів не знайдено.
+                        </p>
+                        <button type="button" onClick={onResetFilters} style={resetBtnStyle}>
+                            Скинути фільтри
+                        </button>
+                    </div>
                 )}
 
-                {}
                 {!loading && !error && movies.length > 0 && (
                     <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
@@ -105,8 +78,8 @@ export const MovieDashboardView: React.FC<MovieDashboardViewProps> = ({
                             >
                                 <th style={thStyle}>Назва</th>
                                 <th style={thStyle}>Дата релізу</th>
+                                <th style={thStyle}>Мова</th>
                                 <th style={thStyle}>Рейтинг</th>
-                                <th style={thStyle}>Голосів</th>
                                 <th style={thStyle}>Популярність</th>
                             </tr>
                             </thead>
@@ -120,10 +93,10 @@ export const MovieDashboardView: React.FC<MovieDashboardViewProps> = ({
                                         {movie.title}
                                     </td>
                                     <td style={tdStyle}>{movie.release_date || '—'}</td>
+                                    <td style={tdStyle}>{movie.original_language.toUpperCase()}</td>
                                     <td style={{ ...tdStyle, color: '#f472b6', fontWeight: 700 }}>
                                         ★ {movie.vote_average.toFixed(1)}
                                     </td>
-                                    <td style={tdStyle}>{movie.vote_count}</td>
                                     <td style={tdStyle}>{Math.round(movie.popularity)}</td>
                                 </tr>
                             ))}
@@ -150,15 +123,15 @@ const stateStyle: React.CSSProperties = {
     fontSize: '15px',
 };
 
-const btnStyle: React.CSSProperties = {
-    padding: '6px 12px',
-    borderRadius: '8px',
-    border: '1px solid rgba(244, 114, 182, 0.45)',
-    background: 'rgba(147, 51, 234, 0.25)',
-    color: '#f5d0fe',
-    cursor: 'pointer',
+const resetBtnStyle: React.CSSProperties = {
+    padding: '8px 16px',
+    borderRadius: '10px',
+    border: '1px solid rgba(244, 114, 182, 0.5)',
+    background: 'rgba(219, 39, 119, 0.2)',
+    color: '#fbcfe8',
     fontSize: '13px',
     fontWeight: 600,
+    cursor: 'pointer',
 };
 
 const thStyle: React.CSSProperties = {

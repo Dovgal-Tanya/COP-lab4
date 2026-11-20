@@ -1,42 +1,68 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-export const ViewToggle: React.FC = () => {
-    const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+interface ViewToggleProps {
+    isLightTheme?: boolean;
+    onToggleTheme?: () => void;
+}
 
+export const ViewToggle: React.FC<ViewToggleProps> = ({
+                                                          isLightTheme = false,
+                                                          onToggleTheme,
+                                                      }) => {
     return (
-        <div style={{
-            ...containerStyle,
-            background: isDarkMode ? 'rgba(30, 20, 56, 0.7)' : 'rgba(45, 30, 80, 0.9)',
-        }}>
-            <h4 style={{ margin: '0 0 6px 0', color: '#a78bfa', fontSize: '14px', fontWeight: 500 }}>Режим секції</h4>
-            <p style={{ fontSize: '13px', color: '#cbd5e1', margin: '0 0 12px 0' }}>
-                Тема: <strong style={{ color: '#f472b6' }}>{isDarkMode ? 'Неон-фіолет' : 'Пастель'}</strong>
+        <div
+            style={{
+                background: isLightTheme
+                    ? 'rgba(255, 255, 255, 0.9)'
+                    : 'rgba(30, 20, 56, 0.75)',
+                border: isLightTheme
+                    ? '1px solid rgba(147, 51, 234, 0.25)'
+                    : '1px solid rgba(168, 85, 247, 0.25)',
+                borderRadius: '16px',
+                padding: '20px',
+                flex: '1',
+                minWidth: '240px',
+                textAlign: 'center',
+            }}
+        >
+            <h4
+                style={{
+                    margin: '0 0 8px 0',
+                    color: isLightTheme ? '#4c1d95' : '#c4b5fd',
+                    fontSize: '15px',
+                    fontWeight: 600,
+                }}
+            >
+                Режим секції
+            </h4>
+            <p
+                style={{
+                    margin: '0 0 14px 0',
+                    color: isLightTheme ? '#1e1b4b' : '#f3e8ff',
+                    fontSize: '14px',
+                }}
+            >
+                Тема:{' '}
+                <strong style={{ color: isLightTheme ? '#be185d' : '#f472b6' }}>
+                    {isLightTheme ? 'Світла' : 'Темна (Неон-фіолет)'}
+                </strong>
             </p>
             <button
-                onClick={() => setIsDarkMode((prev) => !prev)}
+                type="button"
+                onClick={onToggleTheme}
                 style={{
-                    padding: '6px 14px',
-                    background: 'transparent',
-                    color: '#f472b6',
-                    border: '1px solid #db2777',
-                    borderRadius: '8px',
+                    padding: '8px 16px',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(219, 39, 119, 0.6)',
+                    background: isLightTheme ? '#fdf2f8' : 'rgba(147, 51, 234, 0.25)',
+                    color: isLightTheme ? '#be185d' : '#f5d0fe',
+                    fontSize: '13px',
+                    fontWeight: 600,
                     cursor: 'pointer',
-                    fontWeight: '600',
-                    fontSize: '13px'
                 }}
             >
                 Змінити стиль
             </button>
         </div>
     );
-};
-
-const containerStyle: React.CSSProperties = {
-    backdropFilter: 'blur(10px)',
-    border: '1px solid rgba(147, 51, 234, 0.2)',
-    borderRadius: '16px',
-    padding: '20px',
-    flex: '1',
-    minWidth: '220px',
-    transition: 'all 0.3s ease'
 };
